@@ -67,6 +67,45 @@ const loginUserValidator = [
 ]
 
 
+const addUserAddressValidation = [
+  body("street")
+    .notEmpty()
+    .withMessage("Street is required")
+    .isLength({ min: 3 })
+    .withMessage("Street must be at least 3 characters"),
+
+  body("city")
+    .notEmpty()
+    .withMessage("City is required")
+    .isLength({ min: 2 })
+    .withMessage("City must be at least 2 characters"),
+
+  body("state")
+    .notEmpty()
+    .withMessage("State is required")
+    .isLength({ min: 2 })
+    .withMessage("State must be at least 2 characters"),
+
+
+  body("pincode")
+    .notEmpty()
+    .withMessage("Pincode is required")
+    .isPostalCode("IN")
+    .withMessage("Invalid pincode"), // You can change region
+
+  body("country").notEmpty().withMessage("Country is required"),
+
+  body("isDefault")
+    .optional()
+    .isBoolean()
+        .withMessage("isDefault must be a boolean"),
+  
+  responseWithValidationError
+];
+
+
 module.exports = {
-    registerUserValidator,loginUserValidator
+    registerUserValidator,
+    loginUserValidator,
+    addUserAddressValidation
 }

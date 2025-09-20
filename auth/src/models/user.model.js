@@ -6,7 +6,8 @@ const addressSchema = new mongoose.Schema({
     city: { type: String },
     state: { type: String },
     zipCode: { type: String },
-    country: { type: String }
+    country: { type: String },
+    isDefault: {type:Boolean,default:false}
 });
 
 const userSchema = new mongoose.Schema({
