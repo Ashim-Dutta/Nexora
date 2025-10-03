@@ -86,11 +86,14 @@ async function updateProduct(req, res) {
 
     const product = await productModel.findOne({
         _id: id,
-        seller:req.seller.id
     })
 
     if (!product) {
         return res.status(404).json({message:"Product not found"})
+    }
+
+    if (product.seller.toString() !== req.user.id) {
+        return res.status(403).json({message:"forbidden you can only update your own product"})
     }
 
     const allowUpdates = ['title', 'description', 'price']
@@ -108,6 +111,40 @@ async function updateProduct(req, res) {
             }
         }
     }
+
+    await product.save()
+    return res.status(200).json({message:"Product Updated",product})
+}
+
+async function deleteProduct(req, res) { 
+    const { id } = req.params
+    
+       if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({message:"Invalid product id"})
+    }
+
+       const product = await productModel.findOne({
+        _id: id,
+       })
+    
+        if (!product) {
+        return res.status(404).json({message:"Product not found"})
+    }
+        if (product.seller.toString() !== req.user.id) {
+        return res.status(403).json({message:"forbidden you can only update your own product"})
+    }
+
+    await productsModel.findOneAndDelete({_id: id})
+    return res.status(200).json({message:"Product is successfully deleted"})
+}
+
+
+async function getProductsBySeller(req, res) {
+    const seller = req.user
+    const { skip = 0, limit = 20 } = req.query
+    const products = await productsModel.find({ seller: seller.id }).skip(skip).limit(Math.min(limit, 20))
+    
+    return res.status(200).json({data:products})
 }
 
 
@@ -115,5 +152,7 @@ module.exports = {
     createProduct,
     getProducts,
     getProductById,
-    updateProduct
+    updateProduct,
+    deleteProduct,
+    getProductsBySeller
 }
