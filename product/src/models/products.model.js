@@ -32,4 +32,6 @@ const mongoose = require('mongoose')
     ]
  })
 
+ productSchema.index({title:'text',description:"text"})
+
  module.exports = mongoose.model('product',productSchema)

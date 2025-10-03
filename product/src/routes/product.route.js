@@ -13,4 +13,14 @@ router.post('/',
     productController.createProduct
 )
 
+
+router.get('/', productController.getProducts)
+
+
+router.get('/:id', productController.getProductById)
+
+
+router.patch('/:id', createAuthMiddleware(['seller']),
+    productController.updateProduct)
+
 module.exports = router
