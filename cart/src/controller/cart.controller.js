@@ -9,7 +9,7 @@ async function addItemToCart(req, res) {
     let cart = await cartModel.findOne({ userId: user._id });
 
     if (!cart) {
-        cart = new cartModel({ user: user._id, items: [] });
+        cart = new cartModel({ user: user.id, items: [] });
     }
 
     const existingItemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
