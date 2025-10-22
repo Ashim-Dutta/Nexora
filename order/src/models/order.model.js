@@ -6,7 +6,6 @@ const addressSchema = new mongoose.Schema({
   state: String,
   zip: String,
   country: String,
-  isDefault: { type: Boolean, default: false }
 });
 
 const orderSchema = new mongoose.Schema(
@@ -60,7 +59,10 @@ const orderSchema = new mongoose.Schema(
       }
     },
 
-    shippingAddress: addressSchema
+    shippingAddress: {
+      type: addressSchema,
+      require:true
+    }
   },
   { timestamps: true }
 );
