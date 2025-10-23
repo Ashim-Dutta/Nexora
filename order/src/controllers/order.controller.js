@@ -156,9 +156,50 @@ async function cancelOrderById(req, res) {
 
 }
 
+async function updateOrderAddress(req,res) {
+    
+    const user = req.user
+    const orderId = req.params.id
+
+    try {
+
+        const order = await orderModel.findById(orderId)
+
+        if (!order) {
+            return res.status(404).json({message:"Order not found"})
+        }
+
+        if (order.user.toString() !== user.id) {
+            return res.status(403).json({message:"Forbidden you do not have access"})
+        }
+
+        if (order.status !== "PENDING") {
+            return res.status(409).json({message:"Order address cannot be updated"})
+        }
+
+        order.shippingAddress = {
+            street: req.body.shippingAddress.street,
+            city: req.body.shippingAddress.city,
+            state: req.body.shippingAddress.state,
+            zip: req.body.shippingAddress.pincode,
+            country: req.body.shippingAddress.country,
+            
+            
+        };
+        await order.save()
+
+        res.status(200).json({order})
+        
+    } catch (error) {
+        res.status(500).json({message:"Internal server error",error})
+    }
+
+}
+
 module.exports = {
     createOrder,
     getMyOrders,
     getOrderById,
-    cancelOrderById
+    cancelOrderById,
+    updateOrderAddress
 }
