@@ -70,6 +70,95 @@ async function createOrder(req,res) {
 
 }
 
+
+async function getMyOrders(req,res) {
+    
+    const user = req.user;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit
+    
+    try {
+
+        const orders = await orderModel.find({ user: user.id })
+        const totalOrders = await orderModel.countDocuments({ user: user.id })
+        
+        res.status(200).json({
+            orders,
+            meta: {
+                total: totalOrders,
+                page,
+                limit
+            }
+        })
+        
+    } catch (error) {
+        res.status(500).json({message:"Internal server error"})
+    }
+}
+
+async function getOrderById(req, res) {
+    const user = req.user
+    const orderId = req.params.id
+
+    try {
+
+        const order = await orderModel.findById(orderId)
+
+        if (!order) {
+            return res.status(404).json({message:"Order not found"})
+        }
+
+        if (order.user.toString() !== user.id) {
+            return res.status(403).json({message:"Forbidden you do not have access"})
+        }
+
+        res.status(200).json({order})
+        
+    } catch (error) {
+        res.status(500).json({message:"Internal server error",error})
+    }
+}
+
+async function cancelOrderById(req, res) {
+    
+    const user = req.user
+    const orderId = req.params.id
+    
+    try {
+        
+        const order = await orderModel.findById(orderId)
+
+        if (!order) {
+            return res.status(404).json({message:"Order not found"})
+        }
+
+        if (order.user.toString() !== user.id) {
+            return res.status(403).json({message:"Forbidden you do not have access"})
+        }
+
+        // only PENDING orders can be cancelled
+
+        if (order.status !== 'PENDING') {
+            return res.status(409).json({message:"Order can not be cancel at this status"})
+        }
+
+        order.status = 'CANCELLED'
+        order.timeline.push({ type: 'CANCELLED', at: new Date() })
+        await order.save()
+
+        res.status(200).json({order})
+
+    } catch (error) {
+        
+    }
+
+}
+
 module.exports = {
-    createOrder
+    createOrder,
+    getMyOrders,
+    getOrderById,
+    cancelOrderById
 }
