@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require("jsonwebtoken")
 const cookie = require('cookie-parser')
 const redis = require('../db/redis')
+const {publishToQueue} = require('../broker/broker')
 
 
 
@@ -29,6 +30,14 @@ async function registerUser(req, res) {
             email,
             password: hashPassword,
             fullName: { firstName, lastName }
+        })
+
+
+        await publishToQueue('AUTH_NOTIFICATION.USER_CREATED', {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            fullName: user.fullName,
         })
 
         const token = jwt.sign({
