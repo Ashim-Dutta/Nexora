@@ -1,15 +1,17 @@
 const express = require('express');
-const {connect,subscribeToQueue} = require('./broker/broker');
+const { connect, subscribeToQueue } = require('./broker/broker');
+const setListners = require('./broker/listners');
 const app = express();
 
-connect();
+connect().then(() => {
+    
+    setListners();
+})
 
 app.get('/', (req, res) => {
     res.send('Notification service up and running');
 })
 
-subscribeToQueue('AUTH_NOTIFICATION.USER_CREATED', (data) => {
-    console.log(data);
-})
+
 
 module.exports = app;
