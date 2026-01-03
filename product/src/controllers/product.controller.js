@@ -1,7 +1,7 @@
 const productsModel = require('../models/products.model')
 const Product = require('../models/products.model')
 const { uploadImage } = require('../services/imagekit.service')
-
+const { publishToQueue } = require('../broker/broker')
 
 
 async function createProduct(req, res) {
@@ -25,6 +25,9 @@ async function createProduct(req, res) {
         const images = await Promise.all((req.files || []).map(file => uploadImage({ buffer: file.buffer })))
         
         const product = await ProductModel.create({ title, description, price, seller, images })
+
+        await publishToQueue('PRODUCTS_SELLER_DESHBOARD.PRODUCT_CREATED', product)
+
         return res.status(201).json({
             message: "Product Created",
             data:product
