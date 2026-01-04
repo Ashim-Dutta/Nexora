@@ -23,6 +23,6 @@ module.exports = async function () {
     })
 
     subscribeToQueue('PAYMENT_SELLER_DASHBOARD.PAYMENT_UPDATED', async (payment) => {
-        await paymentModel.findOneAndUpdate({ orderId:payment.orderId }, payment)
+        await paymentModel.findOneAndUpdate({ orderId:payment.orderId }, {...payment})
     })
 }

@@ -75,6 +75,95 @@ module.exports = function () {
    
     })
   
+  subscribeToQueue("PAYMENT_NOTIFICATION.PAYMENT_INITIATED", async (data) => {
+    const paymentInitiatedHTMLTemplate = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Initiated</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f8;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .header {
+      background-color: #3b82f6;
+      color: #ffffff;
+      padding: 20px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .content {
+      padding: 24px;
+      color: #333333;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .details {
+      margin-top: 16px;
+      background: #f9fafb;
+      border-radius: 6px;
+      padding: 16px;
+    }
+    .details p {
+      margin: 6px 0;
+    }
+    .footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 12px;
+      color: #6b7280;
+      background: #f9fafb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      Payment Initiated
+    </div>
+    <div class="content">
+      <p>Dear <strong>${data.fullName.firstName || 'Customer'}</strong>,</p>
+      <p>
+        Your payment process has been initiated successfully. Below are the details of your transaction:
+      </p>
+      <div class="details">
+        <p><strong>Order ID:</strong> ${data.orderId}</p>
+        <p><strong>Amount:</strong> ${data.amount} ${data.currency}</p>
+        <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+      </div>
+      <p style="margin-top: 16px;">
+        Please complete the payment if you haven't done so. If you have any questions, feel free to contact our support team.
+      </p>
+      <p>
+        Best regards,<br />
+        <strong>Notification Service Team</strong>
+      </p>
+    </div>
+    <div class="footer">
+      &copy; ${new Date().getFullYear()} Notification Service. All rights reserved.<br />
+      This is an automated email. Please do not reply.
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    await sendEmail(data.email, "Payment Initiated", "Your payment has been initiated.", paymentInitiatedHTMLTemplate);
+  })
+  
   subscribeToQueue("PAYMENT_NOTIFICATION.PAYMENT_COMPLETED", async (data) => {
          
     const paymentSuccessHTMLTemplate = `
